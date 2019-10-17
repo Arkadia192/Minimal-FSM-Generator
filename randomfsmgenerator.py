@@ -18,7 +18,9 @@ class FSM:
         self.numOfOutputs = numOfOutputs
 
         self.nodes = []
-                
+        
+        #[[2,5][1,3][4]]
+        self.isMinimal = None
 
     def generateFsm(self):
         #Create all the states:
@@ -38,7 +40,39 @@ class FSM:
                 print("(input:{}, to:{}, output:{})".format(i, node.transitions[i][0].index, node.transitions[i][1]), end="")
             print("]")
 
+    def divideWithOutputs(self):
+        if self.isMinimal != None:
+            return
+
+        self.isMinimal = [[self.nodes[0]]] #initialize with one node
+
+        for i in range(1, len(self.nodes)): #for each node
+
+            for j in range(len(self.isMinimal)): #check each group
+                match = True
+                for k in range(len(self.nodes[i].transitions)): #compare each output
+            
+                    if (self.nodes[i].transitions[k][1] != self.isMinimal[j][0].transitions[k][1]): #if some outputs dont match
+                        match = False
+                        break
+
+                if match: #All outputs matched, add to group, exit this loop
+                    self.isMinimal[j].append(self.nodes[i])
+                    break
+
+            if not match: #No group matched, create new group
+
+                self.isMinimal.append([self.nodes[i]])
+
+
+        for i in range(len(self.isMinimal)):
+            print("[", end="")
+            for k in range(len(self.isMinimal[i])):
+                print(self.isMinimal[i][k].index, end="")
+            print("]")
+
 fsm = FSM(5,2,3)
 fsm.generateFsm()
 fsm.showFsm()
+fsm.divideWithOutputs()
 
