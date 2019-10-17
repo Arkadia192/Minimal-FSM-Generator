@@ -20,7 +20,7 @@ class FSM:
         self.nodes = []
         
         #[[2,5][1,3][4]]
-        self.isMinimal = None
+        self.groupsList = None
 
     def generateFsm(self):
         #Create all the states:
@@ -41,34 +41,34 @@ class FSM:
             print("]")
 
     def divideWithOutputs(self):
-        if self.isMinimal != None:
+        if self.groupsList != None:
             return
 
-        self.isMinimal = [[self.nodes[0]]] #initialize with one node
+        self.groupsList = [[self.nodes[0]]] #initialize with one node
 
         for i in range(1, len(self.nodes)): #for each node
 
-            for j in range(len(self.isMinimal)): #check each group
+            for j in range(len(self.groupsList)): #check each group
                 match = True
                 for k in range(len(self.nodes[i].transitions)): #compare each output
             
-                    if (self.nodes[i].transitions[k][1] != self.isMinimal[j][0].transitions[k][1]): #if some outputs dont match
+                    if (self.nodes[i].transitions[k][1] != self.groupsList[j][0].transitions[k][1]): #if some outputs dont match
                         match = False
                         break
 
                 if match: #All outputs matched, add to group, exit this loop
-                    self.isMinimal[j].append(self.nodes[i])
+                    self.groupsList[j].append(self.nodes[i])
                     break
 
             if not match: #No group matched, create new group
 
-                self.isMinimal.append([self.nodes[i]])
+                self.groupsList.append([self.nodes[i]])
 
 
-        for i in range(len(self.isMinimal)):
+        for i in range(len(self.groupsList)):
             print("[", end="")
-            for k in range(len(self.isMinimal[i])):
-                print(self.isMinimal[i][k].index, end="")
+            for k in range(len(self.groupsList[i])):
+                print(self.groupsList[i][k].index, end="")
             print("]")
 
 fsm = FSM(5,2,3)
