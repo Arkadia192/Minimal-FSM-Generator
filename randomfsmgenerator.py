@@ -2,11 +2,14 @@
 import random
 
 
+
 class FSM:
     class Node:
         def __init__(self, numOfInputs, index):
             self.transitions = []
             self.index = index
+            self.yenigrup=[]
+            
             ## initialize the node to have #inputs many transitions
             for i in range(numOfInputs):
                 self.transitions.append((None, None)) # Destination and output is empty for now
@@ -195,13 +198,73 @@ class FSM:
         return False
 
 
+
+
+
+    def isMinimal(self):
+        temp = []
+        temp2 = []
+        
+        Divide = True
+        while(Divide):
+            for i in range(len(self.groupsList)): #for every group
+                for j in range(len (self.groupsList[i])): #for every elements in the group 
+                    self.groupsList[i][j].yenigrup = i 
+                    print(self.groupsList[i][j].index, self.groupsList[i][j].yenigrup)
+
+                    
+            for i in range(len(self.groupsList)):
+                samegroup = True
+                newi=i
+                temp2.append(self.groupsList[i][0]) #add first element of the ith list.
+                temp.append(temp2)
+                temp2 = []
+                group2bePlaced = -1
+                
+                for j in range(1, len(self.groupsList[i])):
+                    for x in range(newi, len(temp)):
+                        print("***")
+                        samegroup = True
+                        for c in range(len(self.groupsList[i][j].transitions)):
+                            if self.groupsList[i][j].transitions[c][0].yenigrup != temp[x][0].transitions[c][0].yenigrup:
+                                #print("divide")
+                                samegroup = False
+
+                        if samegroup:
+                            group2bePlaced = x
+                            break
+                        
+                    if group2bePlaced == -1: #append to new list
+                        temp.append([self.groupsList[i][j]])   
+                    else:
+                        temp[x].append(self.groupsList[i][j]) # append to the corresponding list x.
+                        print("same group, do not divide")
+              
+
+            if(len(self.groupsList) == len(temp)):
+                Divide =False  #if two lists are the same, no further division, break loop.
+            self.groupsList = temp
+            temp = []
+
+  
+        for x in range(len(self.groupsList)):#print self.groupsList's elements
+            print("[", end="")
+            for k in range(len(self.groupsList[x])):
+                print(self.groupsList[x][k].index, end="")
+            print("]")
+            
+       
+
+
 fsm = FSM(5,2,3)
 fsm.generateFsm()
 fsm.showFsm()
-#fsm.divideWithOutputs()
+fsm.divideWithOutputs()
 
 fsm.clearFsm()
 print("\n\n")
 
-fsm.generateMinimalFsm() #We can use this now
+#fsm.generateMinimalFsm() #We can use this now
 fsm.showFsm()
+fsm.isMinimal()
+
