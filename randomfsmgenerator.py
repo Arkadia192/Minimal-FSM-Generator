@@ -51,7 +51,7 @@ class FSM:
         #[[2,5][1,3][4]]
         self.groupsList = None
 
-    def generateFsm(self):
+    def generate(self):
         #Create all the states:
         for i in range(self.numOfStates):
             self.nodes.append(FSM.Node(self.numOfInputs, i))
@@ -61,22 +61,22 @@ class FSM:
             for i in range(self.numOfInputs):
                 node.transitions[i] = (random.choice(self.nodes), random.randint(0, self.numOfOutputs-1))
 
-    def clearFsm(self):
+    def clear(self):
         while len(self.nodes) > 0:
             del self.nodes[0]
 
     def isSurelyMinimal(self):
         return self.isMinimal() and self.isMinimalGraph()
 
-    def generateMinimalFsm(self):
+    def generateMinimal(self):
 
-        self.generateFsm()
+        self.generate()
 
         while not self.isSurelyMinimal(): #if minimality check gives false
-            self.clearFsm()
-            self.generateFsm()
+            self.clear()
+            self.generate()
 
-    def showFsm(self):
+    def show(self):
         for node in self.nodes:
             print("Node:", node.index, ":")
             print("[", end="")
@@ -84,10 +84,10 @@ class FSM:
                 print("(input:{}, to:{}, output:{})".format(i, node.transitions[i][0].index, node.transitions[i][1]), end="")
             print("]")
 
-    def drawFsm(self, makePng = False):
+    def draw(self, makePng = False):
 
         if not GraphvizImportSuccessful:
-            print("You need to successfully install graphviz to use drawFsm method")
+            print("You need to successfully install graphviz to use draw method")
             return 
 
         f = Digraph("Finite_State_Machine", filename="fsm.gv")
@@ -123,7 +123,7 @@ class FSM:
 
 
         # The ultimate node
-        self.graphNodes["SeperatableNode"] = FSM.GraphNode("(Seperatable, Node)")
+        self.graphNodes["SeparableNode"] = FSM.GraphNode("(Separable, Node)")
 
         # loop over all pairs and create graph nodes
         for i in range(len(self.nodes)):
@@ -139,7 +139,7 @@ class FSM:
 
         for graphNodeKey in self.graphNodes:
 
-            if graphNodeKey == "SeperatableNode":
+            if graphNodeKey == "SeparableNode":
                 continue
 
             node1 = graphNodeKey[0]
@@ -149,8 +149,8 @@ class FSM:
 
                 # Check the outputs
                 if (node1.transitions[i][1] != node2.transitions[i][1]): # if different outputs
-                    self.graphNodes[graphNodeKey].addConnection("SeperatableNode") # Can be distinguished
-                    self.graphNodes["SeperatableNode"].addConnection(graphNodeKey)
+                    self.graphNodes[graphNodeKey].addConnection("SeparableNode") # Can be distinguished
+                    self.graphNodes["SeparableNode"].addConnection(graphNodeKey)
 
                 else: # Outputs are different
 
@@ -177,7 +177,7 @@ class FSM:
     def searchInGraphNodes(self):
         """ Search The Graph """
 
-        startnode = "SeperatableNode"
+        startnode = "SeparableNode"
 
         visited = []
 
@@ -311,13 +311,11 @@ class FSM:
 
 if __name__ == "__main__":
     fsm = FSM(5,2,3)
-    fsm.generateFsm()
-    fsm.showFsm()
-    fsm.divideWithOutputs()
+    fsm.generate()
+    fsm.show()
 
-    fsm.clearFsm()
+    fsm.clear()
     print("\n\n")
 
-    fsm.generateMinimalFsm() #We can use this now
-    fsm.showFsm()
-    fsm.isMinimal()
+    fsm.generateMinimal() #We can use this now
+    fsm.show()

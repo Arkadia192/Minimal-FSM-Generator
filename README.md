@@ -5,7 +5,7 @@
 
 ## Important notes
 
-The FSM.drawFsm() function requires the package graphviz.
+The FSM.draw() function requires the package graphviz.
 
 Check out [graphviz website](https://graphviz.gitlab.io/download/) and [pypi.org](https://pypi.org/project/graphviz/) for detailed information
 
@@ -16,14 +16,14 @@ You can use `pip install graphviz` but you also need to make sure that the execu
 - **FSM(** *number of states*, *number of inputs*, *number of outputs* **)**
   - Initializes the finite state machine object with the given attributes
 
-- FSM.**generateFsm()**
+- FSM.**generate()**
   - Generates a random finite state machine.
   - Does not guarantee minimality
   
-- FSM.**generateMinimalFsm()**
+- FSM.**generateMinimal()**
   - Generates a random *minimal* finite state machine.
   
-- FSM.**clearFsm()**
+- FSM.**clear()**
   - Clears the FSM object
   - Cleared object can be used to create another random FSM
 
@@ -39,10 +39,10 @@ You can use `pip install graphviz` but you also need to make sure that the execu
   - Applies both minimality checks together.
   - Returns True if the FSM is minimal, False otherwise
   
-- FSM.**showFsm()**
+- FSM.**show()**
   - Prints the nodes of FSM in a formatted way
   
-- FSM.**drawFsm(** *makePng=False* **)**
+- FSM.**draw(** *makePng=False* **)**
   - Uses the graphviz package to draw the graph.
   - Default output (only output for now) is pdf
   - If makePng is True, will also try to create a png file
@@ -54,14 +54,12 @@ from randomfsmgenerator import FSM
 
 myFsm = FSM(10, 5, 2)
 
-myFsm.generateFsm()
-myFsm.showFsm()
+myFsm.generate()
+myFsm.show()
 
-myFsm.ClearFsm()
+myFsm.Clear()
 
-myFsm.generateMinimalFsm()
+myFsm.generateMinimal()
 if not myFsm.isSurelyMinimal():
   print("We have a big problem")
-
-
 ```
