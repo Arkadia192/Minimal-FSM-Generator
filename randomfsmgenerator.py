@@ -76,6 +76,24 @@ class FSM:
             self.clear()
             self.generate()
 
+    def generateRandomTrace(self, length=10, startNode=-1):
+        # Generates an input trace
+        # Returns a list of tuples with the format [(input, output)]
+
+        if 0 <= startNode and startNode < len(self.nodes): 
+            currentNode = self.nodes[startNode]
+        else:
+            currentNode = random.choice(self.nodes)
+
+        traceList = []
+
+        for i in range(length):
+            randomInput = random.randint(0, self.numOfInputs-1)
+            traceList.append((randomInput, currentNode.transitions[randomInput][1]))
+            currentNode = currentNode.transitions[randomInput][0]
+
+        return traceList
+
     def show(self):
         for node in self.nodes:
             print("Node:", node.index, ":")

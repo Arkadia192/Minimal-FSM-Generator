@@ -38,6 +38,12 @@ You can use `pip install graphviz` but you also need to make sure that the execu
 - FSM.**isSurelyMinimal()**
   - Applies both minimality checks together.
   - Returns True if the FSM is minimal, False otherwise
+
+- FSM.**generateRandomTrace(** *length=10*, *startNode=-1* **)**
+  - Randomly moves on the FSM for *length* steps and generates a trace
+  - Returns a *List* containing tuples in the form (input, output)
+  - e.g `[(0, 0), (4, 1), (1, 0), (3, 1), (4, 0)]`
+  - You can choose which node to start with startNode. If the node you choose is not valid or *-1 (default)*, chooses a random node.
   
 - FSM.**show()**
   - Prints the nodes of FSM in a formatted way
