@@ -1,7 +1,18 @@
 #RANDOM FSM GENERATOR
+
+global GraphvizImportSuccessful
+
 import random
 
+from collections import deque
 
+try:
+    from graphviz import Digraph
+    from graphviz import render
+except Exception as e:
+    GraphvizImportSuccessful = False
+else:
+    GraphvizImportSuccessful = True
 
 class FSM:
     class Node:
@@ -54,11 +65,14 @@ class FSM:
         while len(self.nodes) > 0:
             del self.nodes[0]
 
+    def isSurelyMinimal(self):
+        return self.isMinimal() and self.isMinimalGraph()
+
     def generateMinimalFsm(self):
 
         self.generateFsm()
 
-        while not self.minimalityWithGraph(): #if minimality check gives false
+        while not self.isSurelyMinimal(): #if minimality check gives false
             self.clearFsm()
             self.generateFsm()
 
@@ -70,47 +84,46 @@ class FSM:
                 print("(input:{}, to:{}, output:{})".format(i, node.transitions[i][0].index, node.transitions[i][1]), end="")
             print("]")
 
-    def divideWithOutputs(self):
-        if self.groupsList != None:
+    def drawFsm(self, makePng = False):
+
+        if not GraphvizImportSuccessful:
+            print("You need to successfully install graphviz to use drawFsm method")
+            return 
+
+        f = Digraph("Finite_State_Machine", filename="fsm.gv")
+
+        f.attr("node", shape="circle")
+
+        for node in self.nodes:
+            for i in range(self.numOfInputs):
+                f.edge(str(node.index), str(node.transitions[i][0].index), label="i:{}/o:{}".format(i, node.transitions[i][1]))
+
+        try:
+            f.view() #Tries to view the graph
+        except Exception as e:
+            print(e)
+            print("Unable to draw the graph")
             return
 
-        self.groupsList = [[self.nodes[0]]] #initialize with one node
 
-        for i in range(1, len(self.nodes)): #for each node
+        if makePng:
+            render("dot", "png", "fsm.gv") # Makes a png file
+        
+    def isMinimalGraph(self):
 
-            for j in range(len(self.groupsList)): #check each group
-                match = True
-                for k in range(len(self.nodes[i].transitions)): #compare each output
-            
-                    if (self.nodes[i].transitions[k][1] != self.groupsList[j][0].transitions[k][1]): #if some outputs dont match
-                        match = False
-                        break
+        self.createGraphNodes()
+        self.connectGraphNodes()
 
-                if match: #All outputs matched, add to group, exit this loop
-                    self.groupsList[j].append(self.nodes[i])
-                    break
+        return self.searchInGraphNodes()
 
-            if not match: #No group matched, create new group
-
-                self.groupsList.append([self.nodes[i]])
-
-
-        for i in range(len(self.groupsList)):
-            print("[", end="")
-            for k in range(len(self.groupsList[i])):
-                print(self.groupsList[i][k].index, end="")
-            print("]")
-
-    def minimalityWithGraph(self):
-
-
+    def createGraphNodes(self):
         """ Create the graph """
 
         self.graphNodes = {} #keys are the actual node tuples and values are the indexes of them
 
 
         # The ultimate node
-        self.graphNodes["GodNode"] = FSM.GraphNode("(God, Node)")
+        self.graphNodes["SeperatableNode"] = FSM.GraphNode("(Seperatable, Node)")
 
         # loop over all pairs and create graph nodes
         for i in range(len(self.nodes)):
@@ -121,11 +134,12 @@ class FSM:
         #    print(self.graphNodes[node].nodeTuple)
 
 
+    def connectGraphNodes(self):
         """ Connect the Graph """
 
         for graphNodeKey in self.graphNodes:
 
-            if graphNodeKey == "GodNode":
+            if graphNodeKey == "SeperatableNode":
                 continue
 
             node1 = graphNodeKey[0]
@@ -135,8 +149,8 @@ class FSM:
 
                 # Check the outputs
                 if (node1.transitions[i][1] != node2.transitions[i][1]): # if different outputs
-                    self.graphNodes[graphNodeKey].addConnection("GodNode") # Can be distinguished
-                    self.graphNodes["GodNode"].addConnection(graphNodeKey)
+                    self.graphNodes[graphNodeKey].addConnection("SeperatableNode") # Can be distinguished
+                    self.graphNodes["SeperatableNode"].addConnection(graphNodeKey)
 
                 else: # Outputs are different
 
@@ -160,13 +174,15 @@ class FSM:
         #    print(self.graphNodes[node], self.graphNodes[node].connections)
 
 
+    def searchInGraphNodes(self):
         """ Search The Graph """
 
-        startnode = "GodNode"
+        startnode = "SeperatableNode"
 
         visited = []
 
-        queue = [] # Append to the end, delete from the front
+        queue = deque()
+        #queue = [] # Append to the end, delete from the front
 
         finished = False
         
@@ -190,7 +206,7 @@ class FSM:
             
             visited.append(currNode)
 
-            del queue[0]
+            queue.popleft()
 
         if len(self.graphNodes) == len(visited):
             return True
@@ -199,9 +215,42 @@ class FSM:
 
 
 
+    def divideWithOutputs(self):
 
+        self.groupsList = []
+
+        self.groupsList = [[self.nodes[0]]] #initialize with one node
+
+        for i in range(1, len(self.nodes)): #for each node
+
+            for j in range(len(self.groupsList)): #check each group
+                match = True
+                for k in range(len(self.nodes[i].transitions)): #compare each output
+            
+                    if (self.nodes[i].transitions[k][1] != self.groupsList[j][0].transitions[k][1]): #if some outputs dont match
+                        match = False
+                        break
+
+                if match: #All outputs matched, add to group, exit this loop
+                    self.groupsList[j].append(self.nodes[i])
+                    break
+
+            if not match: #No group matched, create new group
+
+                self.groupsList.append([self.nodes[i]])
+
+        """
+        for i in range(len(self.groupsList)):
+            print("[", end="")
+            for k in range(len(self.groupsList[i])):
+                print(self.groupsList[i][k].index, end="")
+            print("]")
+        """
 
     def isMinimal(self):
+
+        self.divideWithOutputs()
+        
         temp = []
         temp2 = []
         
@@ -210,7 +259,7 @@ class FSM:
             for i in range(len(self.groupsList)): #for every group
                 for j in range(len (self.groupsList[i])): #for every elements in the group 
                     self.groupsList[i][j].yenigrup = i 
-                    print(self.groupsList[i][j].index, self.groupsList[i][j].yenigrup)
+                    #print(self.groupsList[i][j].index, self.groupsList[i][j].yenigrup)
 
                     
             for i in range(len(self.groupsList)):
@@ -223,7 +272,7 @@ class FSM:
                 
                 for j in range(1, len(self.groupsList[i])):
                     for x in range(newi, len(temp)):
-                        print("***")
+                        #print("***")
                         samegroup = True
                         for c in range(len(self.groupsList[i][j].transitions)):
                             if self.groupsList[i][j].transitions[c][0].yenigrup != temp[x][0].transitions[c][0].yenigrup:
@@ -238,33 +287,37 @@ class FSM:
                         temp.append([self.groupsList[i][j]])   
                     else:
                         temp[x].append(self.groupsList[i][j]) # append to the corresponding list x.
-                        print("same group, do not divide")
+                        #print("same group, do not divide")
               
 
             if(len(self.groupsList) == len(temp)):
                 Divide =False  #if two lists are the same, no further division, break loop.
+
             self.groupsList = temp
             temp = []
-
-  
+        
+        """
         for x in range(len(self.groupsList)):#print self.groupsList's elements
             print("[", end="")
             for k in range(len(self.groupsList[x])):
                 print(self.groupsList[x][k].index, end="")
             print("]")
-            
-       
+        """
 
+        if len(self.groupsList) == self.numOfStates:
+            return True
 
-fsm = FSM(5,2,3)
-fsm.generateFsm()
-fsm.showFsm()
-fsm.divideWithOutputs()
+        return False
 
-fsm.clearFsm()
-print("\n\n")
+if __name__ == "__main__":
+    fsm = FSM(5,2,3)
+    fsm.generateFsm()
+    fsm.showFsm()
+    fsm.divideWithOutputs()
 
-#fsm.generateMinimalFsm() #We can use this now
-fsm.showFsm()
-fsm.isMinimal()
+    fsm.clearFsm()
+    print("\n\n")
 
+    fsm.generateMinimalFsm() #We can use this now
+    fsm.showFsm()
+    fsm.isMinimal()
