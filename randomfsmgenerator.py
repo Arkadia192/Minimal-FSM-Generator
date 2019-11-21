@@ -19,7 +19,7 @@ class FSM:
         def __init__(self, numOfInputs, index):
             self.transitions = []
             self.index = index
-            self.yenigrup=[]
+            self.newGroup=[]
             
             ## initialize the node to have #inputs many transitions
             for i in range(numOfInputs):
@@ -276,8 +276,8 @@ class FSM:
         while(Divide):
             for i in range(len(self.groupsList)): #for every group
                 for j in range(len (self.groupsList[i])): #for every elements in the group 
-                    self.groupsList[i][j].yenigrup = i 
-                    #print(self.groupsList[i][j].index, self.groupsList[i][j].yenigrup)
+                    self.groupsList[i][j].newGroup = i 
+                    #print(self.groupsList[i][j].index, self.groupsList[i][j].newGroup)
 
                     
             for i in range(len(self.groupsList)):
@@ -293,7 +293,7 @@ class FSM:
                         #print("***")
                         samegroup = True
                         for c in range(len(self.groupsList[i][j].transitions)):
-                            if self.groupsList[i][j].transitions[c][0].yenigrup != temp[x][0].transitions[c][0].yenigrup:
+                            if self.groupsList[i][j].transitions[c][0].newGroup != temp[x][0].transitions[c][0].newGroup:
                                 #print("divide")
                                 samegroup = False
 
