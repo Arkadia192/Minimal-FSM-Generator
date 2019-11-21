@@ -50,7 +50,7 @@ You can use `pip install graphviz` but you also need to make sure that the execu
   
 - FSM.**draw(** *_filename="fsm"* *makePng=False* **)**
   - Uses the graphviz package to draw the graph.
-  - The name of teh generated file is *_filename.gv*
+  - The name of the generated file is *_filename.gv*
   - Default output (only output for now) is pdf
   - If makePng is True, will also try to create a png file
   

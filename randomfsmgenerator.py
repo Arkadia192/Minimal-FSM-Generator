@@ -114,7 +114,8 @@ class FSM:
 
         for node in self.nodes:
             for i in range(self.numOfInputs):
-                f.edge(str(node.index), str(node.transitions[i][0].index), label="i:{}/o:{}".format(i, node.transitions[i][1]))
+                if (node.transitions[i][0] != None):
+                    f.edge(str(node.index), str(node.transitions[i][0].index), label="i:{}/o:{}".format(i, node.transitions[i][1]))
 
         try:
             f.view() #Tries to view the graph
