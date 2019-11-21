@@ -1,4 +1,5 @@
 test.py
-fsm.gv
-fsm.gv.*
+traceAnalyser.py
+*.gv
+*.gv.*
 __pycache__

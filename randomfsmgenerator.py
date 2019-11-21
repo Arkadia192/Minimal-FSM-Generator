@@ -102,13 +102,13 @@ class FSM:
                 print("(input:{}, to:{}, output:{})".format(i, node.transitions[i][0].index, node.transitions[i][1]), end="")
             print("]")
 
-    def draw(self, makePng = False):
+    def draw(self, _filename = "fsm", makePng = False):
 
         if not GraphvizImportSuccessful:
             print("You need to successfully install graphviz to use draw method")
             return 
 
-        f = Digraph("Finite_State_Machine", filename="fsm.gv")
+        f = Digraph("Finite_State_Machine", filename= _filename+".gv")
 
         f.attr("node", shape="circle")
 
@@ -125,7 +125,7 @@ class FSM:
 
 
         if makePng:
-            render("dot", "png", "fsm.gv") # Makes a png file
+            render("dot", "png", _filename+".gv") # Makes a png file
         
     def isMinimalGraph(self):
 
