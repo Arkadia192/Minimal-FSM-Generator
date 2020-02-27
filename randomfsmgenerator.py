@@ -20,6 +20,8 @@ class FSM:
             self.transitions = []
             self.index = index
             self.newGroup=[]
+
+            self.parent = None ## will be used to analyse the traces later
             
             ## initialize the node to have #inputs many transitions
             for i in range(numOfInputs):
@@ -29,16 +31,20 @@ class FSM:
         def __init__(self, nodeTuple):
             self.nodeTuple = nodeTuple
 
-            # connections are two-ways
-            self.connections = []
+            # connections are NOT two-ways anymore
+            self.forwardConnections = []
+            self.backwardsConnections = []
 
-        def addConnection(self, smthing):
-            #checks if it is already there
-            #here to protect from duplicates
 
-            if smthing not in self.connections:
-                self.connections.append(smthing)
+        def addForwardConnection(self, smthing):
+            # Here to protect from duplicates
+            if smthing not in self.forwardConnections:
+                self.forwardConnections.append(smthing)
 
+        def addBackwardConnection(self, smthing):
+            # Here to protect from duplicates
+            if smthing not in self.backwardsConnections:
+                self.backwardsConnections.append(smthing)
 
 
     def __init__(self, numOfStates, numOfInputs, numOfOutputs): #x is range of randomness.
@@ -168,10 +174,10 @@ class FSM:
 
                 # Check the outputs
                 if (node1.transitions[i][1] != node2.transitions[i][1]): # if different outputs
-                    self.graphNodes[graphNodeKey].addConnection("SeparableNode") # Can be distinguished
-                    self.graphNodes["SeparableNode"].addConnection(graphNodeKey)
+                    self.graphNodes[graphNodeKey].addForwardConnection("SeparableNode") # Can be distinguished
+                    self.graphNodes["SeparableNode"].addBackwardConnection(graphNodeKey)
 
-                else: # Outputs are different
+                else: # Outputs are same
 
                     #Check if they go to the same state
                     if (node1.transitions[i][0] == node2.transitions[i][0]):
@@ -186,8 +192,8 @@ class FSM:
                         else:
                             placeTheyGoTo = (node2.transitions[i][0], node1.transitions[i][0])
 
-                        self.graphNodes[graphNodeKey].addConnection(placeTheyGoTo)
-                        self.graphNodes[placeTheyGoTo].addConnection(graphNodeKey)
+                        self.graphNodes[graphNodeKey].addForwardConnection(placeTheyGoTo)
+                        self.graphNodes[placeTheyGoTo].addBackwardConnection(graphNodeKey)
 
         #for node in self.graphNodes:
         #    print(self.graphNodes[node], self.graphNodes[node].connections)
@@ -215,7 +221,7 @@ class FSM:
 
             currNode = queue[0]
 
-            for connection in currNode.connections:
+            for connection in currNode.backwardsConnections:
                 
                 connection = self.graphNodes[connection]
 
@@ -329,12 +335,14 @@ class FSM:
         return False
 
 if __name__ == "__main__":
-    fsm = FSM(5,2,3)
+    fsm = FSM(10,3,5)
+    
     fsm.generate()
     fsm.show()
 
     fsm.clear()
     print("\n\n")
-
+    
     fsm.generateMinimal() #We can use this now
+    fsm.draw()
     fsm.show()
