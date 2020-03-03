@@ -32,14 +32,7 @@ class FSM:
             self.nodeTuple = nodeTuple
 
             # connections are NOT two-ways anymore
-            self.forwardConnections = []
             self.backwardsConnections = []
-
-
-        def addForwardConnection(self, smthing):
-            # Here to protect from duplicates
-            if smthing not in self.forwardConnections:
-                self.forwardConnections.append(smthing)
 
         def addBackwardConnection(self, smthing):
             # Here to protect from duplicates
@@ -174,13 +167,12 @@ class FSM:
 
                 # Check the outputs
                 if (node1.transitions[i][1] != node2.transitions[i][1]): # if different outputs
-                    self.graphNodes[graphNodeKey].addForwardConnection("SeparableNode") # Can be distinguished
-                    self.graphNodes["SeparableNode"].addBackwardConnection(graphNodeKey)
+                    self.graphNodes["SeparableNode"].backwardsConnections.append(graphNodeKey)
 
                 else: # Outputs are same
 
                     #Check if they go to the same state
-                    if (node1.transitions[i][0] == node2.transitions[i][0]):
+                    if (node1.transitions[i][0].index == node2.transitions[i][0].index):
                         # No transitions added in this case
                         continue
 
@@ -192,8 +184,7 @@ class FSM:
                         else:
                             placeTheyGoTo = (node2.transitions[i][0], node1.transitions[i][0])
 
-                        self.graphNodes[graphNodeKey].addForwardConnection(placeTheyGoTo)
-                        self.graphNodes[placeTheyGoTo].addBackwardConnection(graphNodeKey)
+                        self.graphNodes[placeTheyGoTo].backwardsConnections.append(graphNodeKey)
 
         #for node in self.graphNodes:
         #    print(self.graphNodes[node], self.graphNodes[node].connections)
@@ -238,6 +229,14 @@ class FSM:
 
         return False
 
+    def printGroup(self):
+
+        for lis in self.groupsList:
+            print("(", end="")
+            for node in lis:
+                print(node.index, end="")
+            print(")", end="")
+        print("")
 
 
     def divideWithOutputs(self):
@@ -276,6 +275,8 @@ class FSM:
 
         self.divideWithOutputs()
         
+        
+        
         temp = []
         temp2 = []
         
@@ -289,19 +290,20 @@ class FSM:
                     
             for i in range(len(self.groupsList)):
                 samegroup = True
-                newi=i
                 temp2.append(self.groupsList[i][0]) #add first element of the ith list.
                 temp.append(temp2)
                 temp2 = []
-                group2bePlaced = -1
+                
+                blockStart = len(temp)-1
                 
                 for j in range(1, len(self.groupsList[i])):
-                    for x in range(newi, len(temp)):
+                    group2bePlaced = -1
+                    for x in range(blockStart, len(temp)):
                         #print("***")
                         samegroup = True
                         for c in range(len(self.groupsList[i][j].transitions)):
                             if self.groupsList[i][j].transitions[c][0].newGroup != temp[x][0].transitions[c][0].newGroup:
-                                #print("divide")
+                                #print(group2bePlaced)
                                 samegroup = False
 
                         if samegroup:
@@ -320,6 +322,7 @@ class FSM:
 
             self.groupsList = temp
             temp = []
+            #self.printGroup()
         
         """
         for x in range(len(self.groupsList)):#print self.groupsList's elements
@@ -333,8 +336,9 @@ class FSM:
             return True
 
         return False
-
+  
 if __name__ == "__main__":
+    
     fsm = FSM(10,3,5)
     
     fsm.generate()
@@ -342,7 +346,7 @@ if __name__ == "__main__":
 
     fsm.clear()
     print("\n\n")
-    
+
     fsm.generateMinimal() #We can use this now
     fsm.draw()
     fsm.show()
